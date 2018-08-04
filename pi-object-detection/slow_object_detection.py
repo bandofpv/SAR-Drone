@@ -1,5 +1,15 @@
-# USAGE
+# this program will use the RPI Module and detect slow moving objects
+# you can use a Web Cam by commenting the line under "For RPI Camera Module"
+# and uncommenting the line under "For Web Cam"
+
+# this code will stream at fast fps but the object recognition boxes will be
+# delayed. Thus, I do now recomend using this for a Drone
+
+# to use this code, copy and paste this in your terminal window under the
+# pi-object-detection directory: 
 # python pi_object_detection.py --prototxt MobileNetSSD_deploy.prototxt.txt --model MobileNetSSD_deploy.caffemodel
+
+# press 'q' to exit the video stream
 
 # import the necessary packages
 from imutils.video import VideoStream
@@ -71,7 +81,7 @@ p.start()
 # initialize the video stream, allow the cammera sensor to warmup,
 # and initialize the FPS counter
 print("[INFO] starting video stream...")
-# For Web Camera
+# For Web Camera Module
 # vs = VideoStream(src=0).start()
 # For RPI Camera Module
 vs = VideoStream(usePiCamera=True).start()
