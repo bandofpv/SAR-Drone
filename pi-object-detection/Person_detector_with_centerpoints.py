@@ -47,7 +47,7 @@ while True:
     # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 400 pixels
     frame = vs.read()
-    frame = cv2.resize(frame, (640, 480))
+    frame = cv2.resize(frame, (1280, 720))
 
     # grab the frame dimensions and convert it to a blob
     (h, w) = frame.shape[:2]
@@ -93,14 +93,20 @@ while True:
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                 cv2.putText(frame, str(startY), (140, 400),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                box_diffX = ((endX - startX) // 2) + startX
-                box_diffY = ((endY - startY) // 2) + startY
-
-                print (str(endY))
+                box_centerX = ((endX - startX) // 2) + startX
+                box_centerY = ((endY - startY) // 2) + startY
             
-                
-                cv2.circle(frame, (box_diffX, box_diffY), 10, (0, 0, 255), -1)
+                cv2.circle(frame, (box_centerX, box_centerY), 5, (0, 0, 255), -1)
 
+                frame_centerX = 640
+                frame_centerY = 360
+
+                cv2.circle(frame, (frame_centerX, frame_centerY), 10, (0, 0, 255), -1)
+
+                cv2.line(frame, (box_centerX, box_centerY), (frame_centerX, frame_centerY),(0, 0, 255, 5), 5)
+
+   
+                
     # show the output frame
     cv2.imshow("Frame", frame)
     key = cv2.waitKey(1) & 0xFF
@@ -111,6 +117,7 @@ while True:
 
     # update the FPS counter
     fps.update()
+
 
 # stop the timer and display FPS information
 fps.stop()
