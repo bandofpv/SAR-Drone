@@ -1,2 +1,2 @@
 # SAR_Drone
-Search and Rescue Drone
+Code for Search and Rescue Drone
