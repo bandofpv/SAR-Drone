@@ -3,6 +3,7 @@
 
 # import the necessary packages
 from edgetpu.detection.engine import DetectionEngine
+from imutils.video import FPS
 from imutils.video import VideoStream
 from PIL import Image
 import argparse
@@ -39,6 +40,8 @@ print("[INFO] starting video stream...")
 vs = VideoStream(src=0).start()
 #vs = VideoStream(usePiCamera=False).start()
 time.sleep(2.0)
+
+fps = FPS().start()
 
 # loop over the frames from the video stream
 while True:
@@ -88,6 +91,14 @@ while True:
 	# if the `q` key was pressed, break from the loop
 	if key == ord("q"):
 		break
+
+	# update the FPS counter
+	fps.update()
+
+# stop the timer and display FPS information
+fps.stop()
+print("[INFO] elapse time: {:.2f}".format(fps.elapsed()))
+print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
