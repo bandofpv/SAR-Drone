@@ -40,6 +40,7 @@ print ("\n Home location: %s" % vehicle.home_location)
 
 vehicle.mode = VehicleMode("GUIDED")
 vehicle.armed = True
+
 while not vehicle.mode.name=='GUIDED' and not vehicle.armed:
     print (" Getting ready to take off ...")
     time.sleep(1)
