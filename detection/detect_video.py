@@ -10,15 +10,16 @@ import argparse
 import imutils
 import time
 import cv2
+import math
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-m", "--model", required=True,
-	help="path to TensorFlow Lite object detection model")
+    help="path to TensorFlow Lite object detection model")
 ap.add_argument("-l", "--labels", required=True,
-	help="path to labels file")
+    help="path to labels file")
 ap.add_argument("-c", "--confidence", type=float, default=0.3,
-	help="minimum probability to filter weak detections")
+    help="minimum probability to filter weak detections")
 args = vars(ap.parse_args())
 
 # initialize the labels dictionary
@@ -27,9 +28,9 @@ labels = {}
 
 # loop over the class labels file
 for row in open(args["labels"]):
-	# unpack the row and update the labels dictionary
-	(classID, label) = row.strip().split(maxsplit=1)
-	labels[int(classID)] = label.strip()
+    # unpack the row and update the labels dictionary
+    (classID, label) = row.strip().split(maxsplit=1)
+    labels[int(classID)] = label.strip()
 
 # load the Google Coral object detection model
 print("[INFO] loading Coral model...")
@@ -45,56 +46,82 @@ fps = FPS().start()
 
 # loop over the frames from the video stream
 while True:
-	# grab the frame from the threaded video stream and resize it
-	# to have a maximum width of 500 pixels
-	frame = vs.read()
-	frame = imutils.resize(frame, width=500)
-	orig = frame.copy()
+    # grab the frame from the threaded video stream and resize it
+    # to have a maximum width of 500 pixels
+    frame = vs.read()
+    frame = imutils.resize(frame, width=500)
+    orig = frame.copy()
 
-	# prepare the frame for object detection by converting (1) it
-	# from BGR to RGB channel ordering and then (2) from a NumPy
-	# array to PIL image format
-	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-	frame = Image.fromarray(frame)
+    # prepare the frame for object detection by converting (1) it
+    # from BGR to RGB channel ordering and then (2) from a NumPy
+    # array to PIL image format
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    frame = Image.fromarray(frame)
 
-	# make predictions on the input frame
-	start = time.time()
-	results = model.detect_with_image(frame, threshold=args["confidence"],
-		keep_aspect_ratio=True, relative_coord=False)
-	end = time.time()
+    # make predictions on the input frame
+    start = time.time()
+    results = model.detect_with_image(frame, threshold=args["confidence"],
+        keep_aspect_ratio=True, relative_coord=False)
+    end = time.time()
 
-	# loop over the results
-	for r in results:
-		# extract the bounding box and box and predicted class label
-		box = r.bounding_box.flatten().astype("int")
-		(startX, startY, endX, endY) = box
-		label = labels[r.label_id]
+    # loop over the results
+    for r in results:
+        # extract the bounding box and box and predicted class label
+        box = r.bounding_box.flatten().astype("int")
+        (startX, startY, endX, endY) = box
+        label = labels[r.label_id]
 
-		# draw the bounding box and label on the image
-		cv2.rectangle(orig, (startX, startY), (endX, endY),
-			(0, 255, 0), 2)
-		y = startY - 15 if startY - 15 > 15 else startY + 15
-		text = "{}: {:.2f}%".format(label, r.score * 100)
-		cv2.putText(orig, text, (startX, y),
-			cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-		
-		if label == "person":
-		    box_centerX = ((endX - startX) // 2) + startX
-		    box_centerY = ((endY - startY) // 2) + startY
-		    cv2.circle(orig, (box_centerX, box_centerY), 5, (0, 0, 255), -1)
+        # draw the bounding box and label on the image
+        cv2.rectangle(orig, (startX, startY), (endX, endY),
+            (0, 255, 0), 2)
+        y = startY - 15 if startY - 15 > 15 else startY + 15
+        text = "{}: {:.2f}%".format(label, r.score * 100)
+        cv2.putText(orig, text, (startX, y),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-		# cv2.line(frame, (box_centerX, box_centerY), (frame_centerX, frame_centerY), (0, 0, 255, 5), 5)
+        if label == "person":
+            box_centerX = ((endX - startX) // 2) + startX
+            box_centerY = ((endY - startY) // 2) + startY
+            cv2.circle(orig, (box_centerX, box_centerY), 5, (0, 0, 255), -1)
 
-	# show the output frame and wait for a key press
-	cv2.imshow("Frame", orig)
-	key = cv2.waitKey(1) & 0xFF
+            # calculate angle of object to arm
+            angle = int(math.atan((box_centerY - 445) / (box_centerX - 275)) * 180 / math.pi)
 
-	# if the `q` key was pressed, break from the loop
-	if key == ord("q"):
-		break
+            # calculated angle gives angles between (-90,90) NOT (0,180)
+            # if statements used to convert the (-90,90) angles to (0,180)
+            if angle > 0:
+                angle = abs(angle - 180)
 
-	# update the FPS counter
-	fps.update()
+            if angle < 0:
+                angle = -angle
+
+            if angle == 90:
+                angle = 0
+
+            # create circle of where the arm is
+            cv2.circle(orig, (275, 370), 5, (0, 0, 255), -1)
+
+            # create line connecting the arm and object location with the angle calculated too
+            cv2.line(orig, (box_centerX, box_centerY), (275, 370), (0, 0, 255), 1)
+            cv2.putText(orig, str(angle), (260, 360), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+            # create circle of center frame
+            cv2.circle(orig, (250, 250), 5, (0, 0, 255), -1)
+
+            # calculate the distance from person to center of frame
+            calcDistance = int(math.sqrt(((box_centerY - 250) ** 2)))
+            cv2.putText(orig, str(calcDistance), (250, 260), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+    # show the output frame and wait for a key press
+    cv2.imshow("Frame", orig)
+    key = cv2.waitKey(1) & 0xFF
+
+    # if the `q` key was pressed, break from the loop
+    if key == ord("q"):
+        break
+
+    # update the FPS counter
+    fps.update()
 
 # stop the timer and display FPS information
 fps.stop()
