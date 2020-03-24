@@ -75,6 +75,7 @@ while True:
         # extract the bounding box and box and predicted class label
         box = r.bounding_box.flatten().astype("int")
         (startX, startY, endX, endY) = box
+        print(r.label_id)
         label = labels[r.label_id]
 
         # draw the bounding box and label on the image
@@ -91,24 +92,31 @@ while True:
             cv2.circle(orig, (box_centerX, box_centerY), 5, (0, 0, 255), -1)
 
             # calculate angle of object to drone
-            angle = int(math.atan((box_centerY - Ypov) / (box_centerX - Xpov)) * 180 / math.pi)
+            if box_centerX - Xpov != 0:
+                angle = int(math.atan((box_centerY - Ypov) / (box_centerX - Xpov)) * 180 / math.pi)
+
+            if angle < 0:
+                angle += 90
+            
+            else:
+                angle -= 90
 
             # create circle of where the arm is
             cv2.circle(orig, (Xpov, Ypov), 5, (0, 0, 255), -1)
 
             # create line connecting the arm and object location with the angle calculated too
             cv2.line(orig, (box_centerX, box_centerY), (Xpov, Ypov), (0, 0, 255), 1)
-            cv2.putText(orig, str(angle), (Xpov, Ypov + 10, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2))
+            cv2.putText(orig, str(angle), (Xpov, Ypov - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
             # create circle of center frame
             cv2.circle(orig, (midframe_width, midframe_height), 5, (0, 0, 255), -1)
 
             # calculate the distance from person to center of frame
-            calcDistance = midframe_width - box_centerY
-            cv2.putText(orig, str(calcDistance), (midframe_width, midframe_height + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            calcDistance = midframe_height - box_centerY
+            cv2.putText(orig, str(calcDistance), (midframe_width, midframe_height + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
     # show the output frame and wait for a key press
-    #orig = cv2.resize(orig, (640, 480))
+    orig = cv2.resize(orig, (640, 480))
     cv2.imshow("Frame", orig)
     key = cv2.waitKey(1) & 0xFF
 
