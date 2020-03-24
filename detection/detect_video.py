@@ -7,7 +7,6 @@ from imutils.video import FPS
 from imutils.video import VideoStream
 from PIL import Image
 import argparse
-import imutils
 import time
 import cv2
 import math
@@ -48,8 +47,15 @@ fps = FPS().start()
 while True:
     # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 500 pixels
+    frame_height = 480
+    frame_width = 360
+    midframe_height = 180
+    midframe_width = 240
+    Xpov = midframe_width
+    Ypov = frame_height - 125
+
     frame = vs.read()
-    frame = imutils.resize(frame, width=500)
+    frame = cv2.resize(frame, (frame_height,frame_width))
     orig = frame.copy()
 
     # prepare the frame for object detection by converting (1) it
@@ -84,35 +90,25 @@ while True:
             box_centerY = ((endY - startY) // 2) + startY
             cv2.circle(orig, (box_centerX, box_centerY), 5, (0, 0, 255), -1)
 
-            # calculate angle of object to arm
-            angle = int(math.atan((box_centerY - 445) / (box_centerX - 275)) * 180 / math.pi)
-
-            # calculated angle gives angles between (-90,90) NOT (0,180)
-            # if statements used to convert the (-90,90) angles to (0,180)
-            if angle > 0:
-                angle = abs(angle - 180)
-
-            if angle < 0:
-                angle = -angle
-
-            if angle == 90:
-                angle = 0
+            # calculate angle of object to drone
+            angle = int(math.atan((box_centerY - Ypov) / (box_centerX - Xpov)) * 180 / math.pi)
 
             # create circle of where the arm is
-            cv2.circle(orig, (275, 370), 5, (0, 0, 255), -1)
+            cv2.circle(orig, (Xpov, Ypov), 5, (0, 0, 255), -1)
 
             # create line connecting the arm and object location with the angle calculated too
-            cv2.line(orig, (box_centerX, box_centerY), (275, 370), (0, 0, 255), 1)
-            cv2.putText(orig, str(angle), (260, 360), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            cv2.line(orig, (box_centerX, box_centerY), (Xpov, Ypov), (0, 0, 255), 1)
+            cv2.putText(orig, str(angle), (Xpov, Ypov + 10, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
             # create circle of center frame
-            cv2.circle(orig, (250, 250), 5, (0, 0, 255), -1)
+            cv2.circle(orig, (midframe_width, midframe_height), 5, (0, 0, 255), -1)
 
             # calculate the distance from person to center of frame
-            calcDistance = int(math.sqrt(((box_centerY - 250) ** 2)))
-            cv2.putText(orig, str(calcDistance), (250, 260), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            calcDistance = midframe_width - box_centerY
+            cv2.putText(orig, str(calcDistance), (midframewidth, midframe_height + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
     # show the output frame and wait for a key press
+    #orig = cv2.resize(orig, (640, 480))
     cv2.imshow("Frame", orig)
     key = cv2.waitKey(1) & 0xFF
 
