@@ -98,14 +98,14 @@ while True:
 
             # create line connecting the arm and object location with the angle calculated too
             cv2.line(orig, (box_centerX, box_centerY), (Xpov, Ypov), (0, 0, 255), 1)
-            cv2.putText(orig, str(angle), (Xpov, Ypov + 10, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            cv2.putText(orig, str(angle), (Xpov, Ypov + 10, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2))
 
             # create circle of center frame
             cv2.circle(orig, (midframe_width, midframe_height), 5, (0, 0, 255), -1)
 
             # calculate the distance from person to center of frame
             calcDistance = midframe_width - box_centerY
-            cv2.putText(orig, str(calcDistance), (midframewidth, midframe_height + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            cv2.putText(orig, str(calcDistance), (midframe_width, midframe_height + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
     # show the output frame and wait for a key press
     #orig = cv2.resize(orig, (640, 480))
