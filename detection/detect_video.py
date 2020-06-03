@@ -14,11 +14,11 @@ import math
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-m", "--model", required=True,
-    help="path to TensorFlow Lite object detection model")
+                help="path to TensorFlow Lite object detection model")
 ap.add_argument("-l", "--labels", required=True,
-    help="path to labels file")
+                help="path to labels file")
 ap.add_argument("-c", "--confidence", type=float, default=0.3,
-    help="minimum probability to filter weak detections")
+                help="minimum probability to filter weak detections")
 args = vars(ap.parse_args())
 
 # initialize the labels dictionary
@@ -38,7 +38,7 @@ model = DetectionEngine(args["model"])
 # initialize the video stream and allow the camera sensor to warmup
 print("[INFO] starting video stream...")
 vs = VideoStream(src=0).start()
-#vs = VideoStream(usePiCamera=False).start()
+# vs = VideoStream(usePiCamera=False).start()
 time.sleep(2.0)
 
 fps = FPS().start()
@@ -55,7 +55,7 @@ while True:
     Ypov = frame_height - 125
 
     frame = vs.read()
-    frame = cv2.resize(frame, (frame_height,frame_width))
+    frame = cv2.resize(frame, (frame_height, frame_width))
     orig = frame.copy()
 
     # prepare the frame for object detection by converting (1) it
@@ -67,7 +67,7 @@ while True:
     # make predictions on the input frame
     start = time.time()
     results = model.detect_with_image(frame, threshold=args["confidence"],
-        keep_aspect_ratio=True, relative_coord=False)
+                                      keep_aspect_ratio=True, relative_coord=False)
     end = time.time()
 
     # loop over the results
@@ -79,11 +79,11 @@ while True:
 
         # draw the bounding box and label on the image
         cv2.rectangle(orig, (startX, startY), (endX, endY),
-            (0, 255, 0), 2)
+                      (0, 255, 0), 2)
         y = startY - 15 if startY - 15 > 15 else startY + 15
         text = "{}: {:.2f}%".format(label, r.score * 100)
         cv2.putText(orig, text, (startX, y),
-            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         if label == "person":
             box_centerX = ((endX - startX) // 2) + startX
@@ -105,10 +105,11 @@ while True:
 
             # calculate the distance from person to center of frame
             calcDistance = midframe_width - box_centerY
-            cv2.putText(orig, str(calcDistance), (midframe_width, midframe_height + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            cv2.putText(orig, str(calcDistance), (midframe_width, midframe_height + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                        (0, 0, 255), 2)
 
     # show the output frame and wait for a key press
-    #orig = cv2.resize(orig, (640, 480))
+    # orig = cv2.resize(orig, (640, 480))
     cv2.imshow("Frame", orig)
     key = cv2.waitKey(1) & 0xFF
 

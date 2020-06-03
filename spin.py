@@ -103,6 +103,7 @@ def condition_yaw(heading, relative=False):
     # send command to vehicle
     vehicle.send_mavlink(msg)
 
+
 """
 Functions to make it easy to convert between the different frames-of-reference. In particular these
 make it easy to navigate in terms of "metres from the current position" when using commands that take 
@@ -114,6 +115,7 @@ Specifically, it provides:
 * get_distance_metres - Get the distance between two LocationGlobal objects in metres
 * get_bearing - Get the bearing in degrees to a LocationGlobal
 """
+
 
 def get_location_metres(original_location, dNorth, dEast):
     """
@@ -169,6 +171,7 @@ def get_bearing(aLocation1, aLocation2):
     if bearing < 0:
         bearing += 360.00
     return bearing;
+
 
 """
 Functions that move the vehicle by specifying the velocity components in each direction.
@@ -247,6 +250,7 @@ def send_global_velocity(velocity_x, velocity_y, velocity_z, duration):
     for x in range(0, duration):
         vehicle.send_mavlink(msg)
         time.sleep(1)
+
 
 DURATION = 10
 
