@@ -1,14 +1,14 @@
 print ("Start simulator (SITL)")
-import dronekit_sitl
-sitl = dronekit_sitl.start_default()
-connection_string = sitl.connection_string()
+#import dronekit_sitl
+#sitl = dronekit_sitl.start_default()
+#connection_string = sitl.connection_string()
 
 # Import DroneKit-Python
 from dronekit import connect, VehicleMode
 
 # Connect to the Vehicle.
-print("Connecting to vehicle on: %s" % (connection_string,))
-vehicle = connect(connection_string, wait_ready=True)
+print("Connecting to vehicle on: serial0")
+vehicle = connect('/dev/serial0', wait_ready=True, baud=921600)
 
 # Get some vehicle attributes (state)
 print ("Get some vehicle attribute values:")
@@ -23,5 +23,5 @@ print (" Mode: %s" % vehicle.mode.name)    # settable
 vehicle.close()
 
 # Shut down simulator
-sitl.stop()
+#sitl.stop()
 print("Completed")

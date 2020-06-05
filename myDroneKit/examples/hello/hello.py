@@ -1,5 +1,6 @@
 # Import DroneKit-Python
 from dronekit import connect, VehicleMode
+#import dronekit_sitl
 
 # Connect to the Vehicle.
 print("Connecting to vehicle on: serial0")
@@ -18,5 +19,5 @@ print (" Mode: %s" % vehicle.mode.name)    # settable
 vehicle.close()
 
 # Shut down simulator
-sitl.stop()
+#sitl.stop()
 print("Completed")
