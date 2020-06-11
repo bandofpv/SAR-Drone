@@ -75,7 +75,6 @@ while True:
         # extract the bounding box and box and predicted class label
         box = r.bounding_box.flatten().astype("int")
         (startX, startY, endX, endY) = box
-        print(r.label_id)
         label = labels[r.label_id]
 
         # draw the bounding box and label on the image
@@ -101,10 +100,10 @@ while True:
             else:
                 angle -= 90
 
-            # create circle of where the arm is
+            # create circle of where the drone is
             cv2.circle(orig, (Xpov, Ypov), 5, (0, 0, 255), -1)
 
-            # create line connecting the arm and object location with the angle calculated too
+            # create line connecting the drone and person location with the angle calculated too
             cv2.line(orig, (box_centerX, box_centerY), (Xpov, Ypov), (0, 0, 255), 1)
             cv2.putText(orig, str(angle), (Xpov, Ypov - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
@@ -112,7 +111,7 @@ while True:
             cv2.circle(orig, (midframe_width, midframe_height), 5, (0, 0, 255), -1)
 
             # calculate the distance from person to center of frame
-            calcDistance = midframe_width - box_centerY
+            calcDistance = midframe_height - box_centerY
             cv2.putText(orig, str(calcDistance), (midframe_width, midframe_height + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                         (0, 0, 255), 2)
 
