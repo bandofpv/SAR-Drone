@@ -112,20 +112,12 @@ while True:
             cv2.circle(orig, (midframe_width, midframe_height), 5, (0, 0, 255), -1)
 
             # calculate the distance from person to center of frame
-<<<<<<< HEAD
             calcDistance = midframe_width - box_centerY
             cv2.putText(orig, str(calcDistance), (midframe_width, midframe_height + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                         (0, 0, 255), 2)
 
     # show the output frame and wait for a key press
-    # orig = cv2.resize(orig, (640, 480))
-=======
-            calcDistance = midframe_height - box_centerY
-            cv2.putText(orig, str(calcDistance), (midframe_width, midframe_height + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-
-    # show the output frame and wait for a key press
     orig = cv2.resize(orig, (640, 480))
->>>>>>> bcdafb9f01cb412aafefb7ea8ac487d1bf08ced7
     cv2.imshow("Frame", orig)
     key = cv2.waitKey(1) & 0xFF
 
