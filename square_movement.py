@@ -5,27 +5,9 @@ from pymavlink import mavutil  # Needed for command message definitions
 import time
 import math
 
-# Set up option parsing to get connection string
-import argparse
-
-parser = argparse.ArgumentParser(description='Control Copter and send commands in GUIDED mode ')
-parser.add_argument('--connect',
-                    help="Vehicle connection target string. If not specified, SITL automatically started and used.")
-args = parser.parse_args()
-
-connection_string = args.connect
-sitl = None
-
-# Start SITL if no connection string specified
-if not connection_string:
-    import dronekit_sitl
-
-    sitl = dronekit_sitl.start_default()
-    connection_string = sitl.connection_string()
-
-# Connect to the Vehicle
-print('Connecting to vehicle on: %s' % connection_string)
-vehicle = connect(connection_string, wait_ready=True)
+# Connect to the Vehicle.
+print("Connecting to vehicle on: serial0")
+vehicle = connect('/dev/serial0', wait_ready=True, baud=921600)
 
 
 def arm_and_takeoff(aTargetAltitude):
@@ -314,9 +296,5 @@ vehicle.mode = VehicleMode("RETURN_TO_LAUNCH")
 # Close vehicle object before exiting script
 print("Close vehicle object")
 vehicle.close()
-
-# Shut down simulator if it was started.
-if sitl is not None:
-    sitl.stop()
 
 print("Completed")
