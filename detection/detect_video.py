@@ -57,6 +57,9 @@ while True:
     frame = vs.read()
     frame = cv2.resize(frame, (frame_height, frame_width))
     orig = frame.copy()
+    
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
 
     # prepare the frame for object detection by converting (1) it
     # from BGR to RGB channel ordering and then (2) from a NumPy
@@ -117,6 +120,7 @@ while True:
 
     # show the output frame and wait for a key press
     orig = cv2.resize(orig, (640, 480))
+    out.write(orig)
     cv2.imshow("Frame", orig)
     key = cv2.waitKey(1) & 0xFF
 
