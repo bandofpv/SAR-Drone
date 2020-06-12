@@ -10,6 +10,7 @@ import argparse
 import time
 import cv2
 import math
+import numpy as np
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
