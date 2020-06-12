@@ -44,6 +44,9 @@ time.sleep(2.0)
 
 fps = FPS().start()
 
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
+
 # loop over the frames from the video stream
 while True:
     # grab the frame from the threaded video stream and resize it
@@ -58,9 +61,6 @@ while True:
     frame = vs.read()
     frame = cv2.resize(frame, (frame_height, frame_width))
     orig = frame.copy()
-    
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
 
     # prepare the frame for object detection by converting (1) it
     # from BGR to RGB channel ordering and then (2) from a NumPy
