@@ -41,7 +41,9 @@ def arm_and_takeoff(aTargetAltitude):
 
     print("Arming motors")
     # Copter should arm in GUIDED mode
-    vehicle.mode = VehicleMode("GUIDED")
+    while not vehicle.mode.name == 'GUIDED':  # Wait until mode has changed
+        print(" Waiting for mode change ...")
+        time.sleep(1)
     vehicle.armed = True
 
     while not vehicle.armed:
@@ -61,8 +63,8 @@ def arm_and_takeoff(aTargetAltitude):
         time.sleep(1)
 
 
-# Arm and take of to altitude of 10 meters
-arm_and_takeoff(10)
+# Arm and take of to altitude of 6 meters
+arm_and_takeoff(6)
 
 """
 Convenience functions for sending immediate/guided mode commands to control the Copter.
@@ -200,7 +202,7 @@ def send_ned_velocity(velocity_x, velocity_y, velocity_z, duration):
     msg = vehicle.message_factory.set_position_target_local_ned_encode(
         0,  # time_boot_ms (not used)
         0, 0,  # target system, target component
-        mavutil.mavlink.MAV_FRAME_LOCAL_NED,  # frame
+        mavutil.mavlink.MAV_FRAME_BODY_FRD,  # frame
         0b0000111111000111,  # type_mask (only speeds enabled)
         0, 0, 0,  # x, y, z positions (not used)
         velocity_x, velocity_y, velocity_z,  # x, y, z velocity in m/s
@@ -248,19 +250,19 @@ def send_global_velocity(velocity_x, velocity_y, velocity_z, duration):
         vehicle.send_mavlink(msg)
         time.sleep(1)
 
-DURATION = 10
+DURATION = 5
 
 # Set up velocity vector to map to each direction.
 # vx > 0 => fly North
 # vx < 0 => fly South
-NORTH = 2
-SOUTH = -2
+NORTH = 1
+SOUTH = -1
 
 # Note for vy:
 # vy > 0 => fly East
 # vy < 0 => fly West
-EAST = 2
-WEST = -2
+EAST = 1
+WEST = -1
 
 # Note for vz:
 # vz < 0 => ascend
@@ -272,42 +274,42 @@ print("SQAURE path using SET_POSITION_TARGET_GLOBAL_INT and velocity parameters"
 # vx, vy are parallel to North and East (independent of the vehicle orientation)
 
 print("Yaw 225 absolute")
-condition_yaw(0)
+#condition_yaw(0)
 
 print("Velocity South, West and Up")
-send_global_velocity(NORTH, 0, 0, DURATION)
-send_global_velocity(0, 0, 0, 1)
+send_ned_velocity(NORTH, 0, 0, DURATION)
+send_ned_velocity(0, 0, 0, 1)
 
 print("Yaw 90 relative (to previous yaw heading)")
 condition_yaw(90, relative=True)
 
 print("Velocity North, West and Down")
-send_global_velocity(0, EAST, 0, DURATION)
-send_global_velocity(0, 0, 0, 1)
+send_ned_velocity(NORTH, 0, 0, DURATION)
+send_ned_velocity(0, 0, 0, 1)
 
 print("Yaw 90 relative (to previous yaw heading)")
 condition_yaw(90, relative=True)
 
 print("Velocity North and East")
-send_global_velocity(SOUTH, 0, 0, DURATION)
-send_global_velocity(0, 0, 0, 1)
+send_ned_velocity(NORTH, 0, 0, DURATION)
+send_ned_velocity(0, 0, 0, 1)
 
 print("Yaw 90 relative (to previous yaw heading)")
 condition_yaw(90, relative=True)
 
 print("Velocity South and East")
-send_global_velocity(0, WEST, 0, DURATION)
-send_global_velocity(0, 0, 0, 1)
+send_ned_velocity(NORTH, 0, 0, DURATION)
+send_ned_velocity(0, 0, 0, 1)
 
 print("Yaw 90 relative (to previous yaw heading)")
 condition_yaw(90, relative=True)
 
 """
-The example is completing. LAND at current location.
+The example is completing. RETURN_TO_LAUNCH.
 """
 
-print("Setting LAND mode...")
-vehicle.mode = VehicleMode("LAND")
+print("Setting RETURN_TO_LAUNCH mode...")
+vehicle.mode = VehicleMode("RETURN_TO_LAUNCH")
 
 # Close vehicle object before exiting script
 print("Close vehicle object")
