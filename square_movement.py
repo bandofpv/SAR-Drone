@@ -291,7 +291,7 @@ The example is completing. RETURN_TO_LAUNCH.
 """
 
 print("Setting RETURN_TO_LAUNCH mode...")
-vehicle.mode = VehicleMode('RETURN_TO_LAUNCH')
+vehicle.mode = VehicleMode("RTL")
 
 # Close vehicle object before exiting script
 print("Close vehicle object")
