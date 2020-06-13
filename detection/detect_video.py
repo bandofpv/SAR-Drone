@@ -60,6 +60,7 @@ while True:
 
     frame = vs.read()
     frame = cv2.resize(frame, (frame_height, frame_width))
+    frame = cv2.flip(frame,0)
     orig = frame.copy()
 
     # prepare the frame for object detection by converting (1) it
