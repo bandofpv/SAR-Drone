@@ -189,6 +189,9 @@ The example is completing. RETURN_TO_LAUNCH.
 
 print("Setting RETURN_TO_LAUNCH mode...")
 vehicle.mode = VehicleMode("RTL")
+while not vehicle.mode.name == "RTL":  # Wait until mode has changed
+    print(" Waiting for mode change ...")
+    time.sleep(1)
 
 # Close vehicle object before exiting script
 print("Close vehicle object")
