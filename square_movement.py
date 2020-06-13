@@ -183,6 +183,8 @@ send_ned_velocity(0, 0, 0, 1)
 print("Yaw 90 relative (to previous yaw heading)")
 condition_yaw(90, relative=True)
 
+time.sleep(2)
+
 """
 The example is completing. RETURN_TO_LAUNCH.
 """
