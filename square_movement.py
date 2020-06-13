@@ -129,7 +129,7 @@ def send_ned_velocity(velocity_x, velocity_y, velocity_z, duration):
         vehicle.send_mavlink(msg)
         time.sleep(1)
 
-DURATION = 5
+DURATION = 10
 
 # Set up velocity vector to map to each direction.
 # vx > 0 => fly North
