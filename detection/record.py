@@ -2,6 +2,7 @@
 # python detect_video.py --model mobilenet_ssd_v2/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite --labels mobilenet_ssd_v2/coco_labels.txt
 
 # import the necessary packages
+from __future__ import print_function
 from edgetpu.detection.engine import DetectionEngine
 from imutils.video import FPS
 from imutils.video import VideoStream
@@ -11,7 +12,7 @@ import time
 import cv2
 import math
 import numpy as np
-from __future__ import print_function
+#from __future__ import print_function
 from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative
 from pymavlink import mavutil  # Needed for command message definitions
 import math
@@ -183,6 +184,7 @@ while vehicle.mode.name == 'GUIDED':
 
     frame = vs.read()
     frame = cv2.resize(frame, (frame_height, frame_width))
+    frame = cv2.flip(frame, 0)
     orig = frame.copy()
 
     # prepare the frame for object detection by converting (1) it
