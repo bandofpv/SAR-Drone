@@ -164,10 +164,10 @@ vs = VideoStream(src=0).start()
 #time.sleep(2.0)
 
 # Arm and take of to altitude of 6 meters
-arm_and_takeoff(6)
+#arm_and_takeoff(6)
 
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter('record.avi',fourcc, 20.0, (640,480))
+out = cv2.VideoWriter('/home/pi/SAR_Drone/detection/record.avi',fourcc, 20.0, (640,480))
 
 fps = FPS().start()
 
