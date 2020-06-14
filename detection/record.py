@@ -267,7 +267,7 @@ cv2.destroyAllWindows()
 vs.stop()
 
 print("Setting RETURN_TO_LAUNCH mode...")
-vehicle.mode = VehicleMode("RTL")
+#vehicle.mode = VehicleMode("RTL")
 
 # Close vehicle object before exiting script
 print("Close vehicle object")
