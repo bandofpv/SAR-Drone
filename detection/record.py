@@ -172,7 +172,8 @@ out = cv2.VideoWriter('/home/pi/SAR_Drone/detection/record.avi',fourcc, 20.0, (6
 fps = FPS().start()
 
 # loop over the frames from the video stream
-while vehicle.mode.name == 'GUIDED':
+#while vehicle.mode.name == 'GUIDED':
+while True:
     # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 500 pixels
     frame_height = 480
@@ -246,8 +247,8 @@ while vehicle.mode.name == 'GUIDED':
 
     # show the output frame and wait for a key press
     orig = cv2.resize(orig, (640, 480))
+    cv2.imshow("Frame", orig)
     out.write(orig)
-    #cv2.imshow("Frame", orig)
     #key = cv2.waitKey(1) & 0xFF
 
     # if the `q` key was pressed, break from the loop
@@ -263,7 +264,8 @@ print("[INFO] elapse time: {:.2f}".format(fps.elapsed()))
 print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
-#cv2.destroyAllWindows()
+cv2.destroyAllWindows()
+out.release()
 vs.stop()
 
 print("Setting RETURN_TO_LAUNCH mode...")
