@@ -3,18 +3,17 @@
 
 # import the necessary packages
 from __future__ import print_function
+from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative
 from edgetpu.detection.engine import DetectionEngine
-from imutils.video import FPS
 from imutils.video import VideoStream
+from pymavlink import mavutil
+from imutils.video import FPS
 from PIL import Image
 import argparse
 import time
 import cv2
 import math
 import numpy as np
-from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative
-from pymavlink import mavutil  # Needed for command message definitions
-import math
 
 def arm_and_takeoff(aTargetAltitude):
     """
@@ -58,7 +57,6 @@ The full set of available commands are listed here:
 http://dev.ardupilot.com/wiki/copter-commands-in-guided-mode/
 """
 
-
 def condition_yaw(heading, relative=False):
     """
     Send MAV_CMD_CONDITION_YAW message to point vehicle at a specified heading (in degrees).
@@ -96,7 +94,6 @@ The methods include:
 * send_ned_velocity - Sets velocity components using SET_POSITION_TARGET_LOCAL_NED command
 """
 
-
 def send_ned_velocity(velocity_x, velocity_y, velocity_z, duration):
     """
     Move vehicle in direction based on specified velocity vectors and
@@ -128,6 +125,7 @@ def send_ned_velocity(velocity_x, velocity_y, velocity_z, duration):
         vehicle.send_mavlink(msg)
         time.sleep(1)
 
+
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-m", "--model", required=True,
@@ -148,10 +146,6 @@ for row in open(args["labels"]):
     (classID, label) = row.strip().split(maxsplit=1)
     labels[int(classID)] = label.strip()
 
-# Connect to the Vehicle.
-print("Connecting to vehicle on: serial0")
-vehicle = connect('/dev/serial0', wait_ready=True, baud=921600)
-
 # load the Google Coral object detection model
 print("[INFO] loading Coral model...")
 model = DetectionEngine(args["model"])
@@ -160,20 +154,24 @@ model = DetectionEngine(args["model"])
 print("[INFO] starting video stream...")
 vs = VideoStream(src=0).start()
 # vs = VideoStream(usePiCamera=False).start()
-#time.sleep(2.0)
+time.sleep(2.0)
+
+# start video recording
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+out = cv2.VideoWriter('/home/pi/SAR_Drone/detection/track.mp4', fourcc, 20.0, (640, 480))
+
+# Connect to the Vehicle.
+print("Connecting to vehicle on: serial0")
+vehicle = connect('/dev/serial0', wait_ready=True, baud=921600)
 
 # Arm and take of to altitude of 6 meters
 arm_and_takeoff(6)
-
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter('output.avi',fourcc, 20.0, (640,480))
 
 fps = FPS().start()
 
 # loop over the frames from the video stream
 while vehicle.mode.name == 'GUIDED':
-#while True: 
-   # grab the frame from the threaded video stream and resize it
+    # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 500 pixels
     frame_height = 480
     frame_width = 360
@@ -229,7 +227,7 @@ while vehicle.mode.name == 'GUIDED':
 
             if angle < 0:
                 angle += 90
-            
+
             else:
                 angle -= 90
 
@@ -251,12 +249,12 @@ while vehicle.mode.name == 'GUIDED':
     # show the output frame and wait for a key press
     orig = cv2.resize(orig, (640, 480))
     out.write(orig)
-    cv2.imshow("Frame", orig)
+    #cv2.imshow("Frame", orig)
     key = cv2.waitKey(1) & 0xFF
 
     # if the `q` key was pressed, break from the loop
-    # if key == ord("q"):
-    #     break
+    #if key == ord("q"):
+    #    break
 
     # update the FPS counter
     fps.update()
@@ -268,11 +266,8 @@ print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
+out.release()
 vs.stop()
 
-print("Setting RETURN_TO_LAUNCH mode...")
-vehicle.mode = VehicleMode("RTL")
-
-# Close vehicle object before exiting script
 print("Close vehicle object")
 vehicle.close()
