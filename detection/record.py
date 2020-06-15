@@ -3,19 +3,17 @@
 
 # import the necessary packages
 from __future__ import print_function
+from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative
 from edgetpu.detection.engine import DetectionEngine
-from imutils.video import FPS
 from imutils.video import VideoStream
+from pymavlink import mavutil
+from imutils.video import FPS
 from PIL import Image
 import argparse
 import time
 import cv2
 import math
 import numpy as np
-#from __future__ import print_function
-from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative
-from pymavlink import mavutil  # Needed for command message definitions
-import math
 
 def arm_and_takeoff(aTargetAltitude):
     """
@@ -28,13 +26,13 @@ def arm_and_takeoff(aTargetAltitude):
         print(" Waiting for vehicle to initialise...")
         time.sleep(1)
 
-    print("Arming motors")
     # Copter should arm in GUIDED mode
     while not vehicle.mode.name == 'GUIDED':  # Wait until mode has changed
         print(" Waiting for mode change ...")
         time.sleep(1)
-    vehicle.armed = True
 
+    print("Arming motors")
+    vehicle.armed = True
     while not vehicle.armed:
         print(" Waiting for arming...")
         time.sleep(1)
@@ -58,7 +56,6 @@ The set of commands demonstrated here include:
 The full set of available commands are listed here:
 http://dev.ardupilot.com/wiki/copter-commands-in-guided-mode/
 """
-
 
 def condition_yaw(heading, relative=False):
     """
@@ -96,7 +93,6 @@ orientation.
 The methods include:
 * send_ned_velocity - Sets velocity components using SET_POSITION_TARGET_LOCAL_NED command
 """
-
 
 def send_ned_velocity(velocity_x, velocity_y, velocity_z, duration):
     """
@@ -151,7 +147,7 @@ for row in open(args["labels"]):
 
 # Connect to the Vehicle.
 print("Connecting to vehicle on: serial0")
-vehicle = connect('/dev/serial0', wait_ready=True, baud=921600)
+#vehicle = connect('/dev/serial0', wait_ready=True, baud=921600)
 
 # load the Google Coral object detection model
 print("[INFO] loading Coral model...")
@@ -166,8 +162,8 @@ time.sleep(2.0)
 # Arm and take of to altitude of 6 meters
 #arm_and_takeoff(6)
 
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter('/home/pi/SAR_Drone/detection/record.avi',fourcc, 20.0, (640,480))
+#fourcc = cv2.VideoWriter_fourcc(*'XVID')
+#out = cv2.VideoWriter('/home/pi/SAR_Drone/detection/record.avi',fourcc, 20.0, (640,480))
 
 fps = FPS().start()
 
@@ -248,7 +244,7 @@ while True:
     # show the output frame and wait for a key press
     orig = cv2.resize(orig, (640, 480))
     cv2.imshow("Frame", orig)
-    out.write(orig)
+    #out.write(orig)
     #key = cv2.waitKey(1) & 0xFF
 
     # if the `q` key was pressed, break from the loop
@@ -265,7 +261,7 @@ print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
-out.release()
+#out.release()
 vs.stop()
 
 print("Setting RETURN_TO_LAUNCH mode...")
@@ -273,4 +269,4 @@ print("Setting RETURN_TO_LAUNCH mode...")
 
 # Close vehicle object before exiting script
 print("Close vehicle object")
-vehicle.close()
+#vehicle.close()

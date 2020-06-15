@@ -27,13 +27,13 @@ def arm_and_takeoff(aTargetAltitude):
         print(" Waiting for vehicle to initialise...")
         time.sleep(1)
 
-    print("Arming motors")
     # Copter should arm in GUIDED mode
     while not vehicle.mode.name == 'GUIDED':  # Wait until mode has changed
         print(" Waiting for mode change ...")
         time.sleep(1)
-    vehicle.armed = True
 
+    print("Arming motors")
+    vehicle.armed = True
     while not vehicle.armed:
         print(" Waiting for arming...")
         time.sleep(1)
