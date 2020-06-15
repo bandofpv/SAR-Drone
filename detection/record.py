@@ -170,7 +170,7 @@ vehicle = connect('/dev/serial0', wait_ready=True, baud=921600)
 fps = FPS().start()
 
 # loop over the frames from the video stream
-while True:
+while vehicle.mode.name == 'GUIDED':
     # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 500 pixels
     frame_height = 480
