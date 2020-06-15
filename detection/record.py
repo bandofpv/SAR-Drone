@@ -158,7 +158,7 @@ time.sleep(2.0)
 
 # start video recording
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter('output.avi', fourcc, 20.0, (640, 480))
+out = cv2.VideoWriter('/home/pi/SAR_Drone/detection/output.mp4', fourcc, 20.0, (640, 480))
 
 # Connect to the Vehicle.
 print("Connecting to vehicle on: serial0")
