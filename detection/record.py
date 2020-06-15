@@ -245,12 +245,12 @@ while True:
     # show the output frame and wait for a key press
     orig = cv2.resize(orig, (640, 480))
     out.write(orig)
-    cv2.imshow("Frame", orig)
+    #cv2.imshow("Frame", orig)
     key = cv2.waitKey(1) & 0xFF
 
     # if the `q` key was pressed, break from the loop
-    if key == ord("q"):
-        break
+    #if key == ord("q"):
+    #    break
 
     # update the FPS counter
     fps.update()
