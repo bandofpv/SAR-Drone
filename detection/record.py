@@ -156,10 +156,18 @@ vs = VideoStream(src=0).start()
 # vs = VideoStream(usePiCamera=False).start()
 time.sleep(2.0)
 
-fps = FPS().start()
-
+# start video recording
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 out = cv2.VideoWriter('output.avi', fourcc, 20.0, (640, 480))
+
+# Connect to the Vehicle.
+print("Connecting to vehicle on: serial0")
+vehicle = connect('/dev/serial0', wait_ready=True, baud=921600)
+
+# Arm and take of to altitude of 6 meters
+#arm_and_takeoff(6)
+
+fps = FPS().start()
 
 # loop over the frames from the video stream
 while True:
@@ -254,7 +262,11 @@ print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
+out.release()
 vs.stop()
+
+print("Close vehicle object")
+vehicle.close()
 
 # # construct the argument parser and parse the arguments
 # ap = argparse.ArgumentParser()
@@ -400,4 +412,4 @@ vs.stop()
 #
 # # Close vehicle object before exiting script
 # print("Close vehicle object")
-# #vehicle.close()
+# vehicle.close()
