@@ -213,7 +213,7 @@ while vehicle.mode.name == 'GUIDED':
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         cv2.circle(orig, (midframe_width, midframe_height), 15, (0, 0, 255), -1)
-        condition_yaw(30, relative=True)
+        condition_yaw(15, relative=True)
         cv2.circle(orig, (midframe_width, midframe_height), 15, (0, 225, 0), -1)
 
         if label == "person":
