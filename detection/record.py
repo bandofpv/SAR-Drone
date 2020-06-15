@@ -161,7 +161,7 @@ model = DetectionEngine(args["model"])
 print("[INFO] starting video stream...")
 vs = VideoStream(src=0).start()
 # vs = VideoStream(usePiCamera=False).start()
-#time.sleep(2.0)
+time.sleep(2.0)
 
 # Arm and take of to altitude of 6 meters
 #arm_and_takeoff(6)
@@ -247,8 +247,8 @@ while vehicle.mode.name == 'GUIDED':
     # show the output frame and wait for a key press
     orig = cv2.resize(orig, (640, 480))
     out.write(orig)
-    cv2.imshow("Frame", orig)
-    key = cv2.waitKey(1) & 0xFF
+    #cv2.imshow("Frame", orig)
+    #key = cv2.waitKey(1) & 0xFF
 
     # if the `q` key was pressed, break from the loop
     # if key == ord("q"):
@@ -263,7 +263,7 @@ print("[INFO] elapse time: {:.2f}".format(fps.elapsed()))
 print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
-cv2.destroyAllWindows()
+#cv2.destroyAllWindows()
 vs.stop()
 
 print("Setting RETURN_TO_LAUNCH mode...")
