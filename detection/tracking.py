@@ -8,6 +8,7 @@ from edgetpu.detection.engine import DetectionEngine
 from imutils.video import VideoStream
 from pymavlink import mavutil
 from imutils.video import FPS
+from subprocess import call
 from PIL import Image
 import argparse
 import time
@@ -271,3 +272,5 @@ vs.stop()
 
 print("Close vehicle object")
 vehicle.close()
+
+call("sudo shutdown -h now", shell=True)
