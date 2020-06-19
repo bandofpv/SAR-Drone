@@ -161,6 +161,84 @@ time.sleep(2.0)
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter('/home/pi/SAR_Drone/detection/output.mp4', fourcc, 20.0, (640, 480))
 
+check_time = time.clock()
+
+while time.clock() - check_time <=  5:
+    # grab the frame from the threaded video stream and resize it
+    # to have a maximum width of 500 pixels
+    frame_height = 480
+    frame_width = 360
+    midframe_height = 180
+    midframe_width = 240
+    Xpov = midframe_width
+    Ypov = frame_height - 125
+
+    frame = vs.read()
+    frame = cv2.resize(frame, (frame_height, frame_width))
+    frame = cv2.flip(frame, 0)
+    orig = frame.copy()
+
+    # prepare the frame for object detection by converting (1) it
+    # from BGR to RGB channel ordering and then (2) from a NumPy
+    # array to PIL image format
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    frame = Image.fromarray(frame)
+
+    # make predictions on the input frame
+    start = time.time()
+    results = model.detect_with_image(frame, threshold=args["confidence"],
+                                      keep_aspect_ratio=True, relative_coord=False)
+    end = time.time()
+
+    # loop over the results
+    for r in results:
+        # extract the bounding box and box and predicted class label
+        box = r.bounding_box.flatten().astype("int")
+        (startX, startY, endX, endY) = box
+        label = labels[r.label_id]
+
+        # draw the bounding box and label on the image
+        cv2.rectangle(orig, (startX, startY), (endX, endY),
+                      (0, 255, 0), 2)
+        y = startY - 15 if startY - 15 > 15 else startY + 15
+        text = "{}: {:.2f}%".format(label, r.score * 100)
+        cv2.putText(orig, text, (startX, y),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+        if label == "person":
+            box_centerX = ((endX - startX) // 2) + startX
+            box_centerY = ((endY - startY) // 2) + startY
+            cv2.circle(orig, (box_centerX, box_centerY), 5, (0, 0, 255), -1)
+
+            # calculate angle of object to drone
+            if box_centerX - Xpov != 0:
+                angle = int(math.atan((box_centerY - Ypov) / (box_centerX - Xpov)) * 180 / math.pi)
+
+            if angle < 0:
+                angle += 90
+
+            else:
+                angle -= 90
+
+            # create circle of where the drone is
+            cv2.circle(orig, (Xpov, Ypov), 5, (0, 0, 255), -1)
+
+            # create line connecting the drone and person location with the angle calculated too
+            cv2.line(orig, (box_centerX, box_centerY), (Xpov, Ypov), (0, 0, 255), 1)
+            cv2.putText(orig, str(angle), (Xpov, Ypov - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+            # create circle of center frame
+            cv2.circle(orig, (midframe_width, midframe_height), 5, (0, 0, 255), -1)
+
+            # calculate the distance from person to center of frame
+            calcDistance = midframe_height - box_centerY
+            cv2.putText(orig, str(calcDistance), (midframe_width, midframe_height + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                        (0, 0, 255), 2)
+
+    # show the output frame and wait for a key press
+    orig = cv2.resize(orig, (640, 480))
+    #cv2.imshow("Frame", orig)
+
 # Connect to the Vehicle.
 print("Connecting to vehicle on: serial0")
 vehicle = connect('/dev/serial0', wait_ready=True, baud=921600)
@@ -247,7 +325,7 @@ while vehicle.mode.name == 'GUIDED':
     orig = cv2.resize(orig, (640, 480))
     out.write(orig)
     #cv2.imshow("Frame", orig)
-    key = cv2.waitKey(1) & 0xFF
+    #key = cv2.waitKey(1) & 0xFF
 
     # if the `q` key was pressed, break from the loop
     #if key == ord("q"):
