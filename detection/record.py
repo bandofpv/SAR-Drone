@@ -126,6 +126,7 @@ def send_ned_velocity(velocity_x, velocity_y, velocity_z, duration):
         vehicle.send_mavlink(msg)
         time.sleep(1)
 
+flying = 0
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
@@ -242,7 +243,11 @@ while True:
     orig = cv2.resize(orig, (640, 480))
     #cv2.imshow("Frame", orig)
 
-    if time.clock() - clock_check >= 5:
+    print(time.clock())
+
+    if flying == 0 and time.clock() - clock_check >= 10:
+        flying = 1
+
         # Connect to the Vehicle.
         print("Connecting to vehicle on: serial0")
         vehicle = connect('/dev/serial0', wait_ready=True, baud=921600)
@@ -250,15 +255,15 @@ while True:
         # Arm and take of to altitude of 6 meters
         # arm_and_takeoff(6)
 
-        flying = 1;
+        print("connected")
 
-    if flying ==1 && vehicle.mode.name == "GUIDED":
+    if flying == 1 and vehicle.mode.name == "GUIDED":
         # update the FPS counter
         fps.update()
 
         out.write(orig)
 
-    if flying == 1 && vehicle.mode.name != 'GUIDED':
+    if flying == 1 and vehicle.mode.name != 'GUIDED':
         break
 
 # stop the timer and display FPS information
