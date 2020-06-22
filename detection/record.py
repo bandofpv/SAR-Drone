@@ -253,7 +253,7 @@ while True:
         vehicle = connect('/dev/serial0', wait_ready=True, baud=921600)
 
         # Arm and take of to altitude of 6 meters
-        # arm_and_takeoff(6)
+        arm_and_takeoff(6)
 
         print("connected")
 

@@ -126,6 +126,7 @@ def send_ned_velocity(velocity_x, velocity_y, velocity_z, duration):
         vehicle.send_mavlink(msg)
         time.sleep(1)
 
+flying = 0
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
@@ -159,19 +160,14 @@ time.sleep(2.0)
 
 # start video recording
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-out = cv2.VideoWriter('/home/pi/SAR_Drone/detection/track.mp4', fourcc, 20.0, (640, 480))
-
-# Connect to the Vehicle.
-print("Connecting to vehicle on: serial0")
-vehicle = connect('/dev/serial0', wait_ready=True, baud=921600)
-
-# Arm and take of to altitude of 6 meters
-arm_and_takeoff(6)
+out = cv2.VideoWriter('/home/pi/SAR_Drone/detection/output.mp4', fourcc, 20.0, (640, 480))
 
 fps = FPS().start()
 
+clock_check = time.clock()
+
 # loop over the frames from the video stream
-while vehicle.mode.name == 'GUIDED':
+while True:
     # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 500 pixels
     frame_height = 480
@@ -198,6 +194,10 @@ while vehicle.mode.name == 'GUIDED':
                                       keep_aspect_ratio=True, relative_coord=False)
     end = time.time()
 
+    cv2.circle(orig, (midframe_width, midframe_height), 15, (0, 0, 255), -1)
+    condition_yaw(15, relative=True)
+    cv2.circle(orig, (midframe_width, midframe_height), 15, (0, 225, 0), -1)
+
     # loop over the results
     for r in results:
         # extract the bounding box and box and predicted class label
@@ -212,10 +212,6 @@ while vehicle.mode.name == 'GUIDED':
         text = "{}: {:.2f}%".format(label, r.score * 100)
         cv2.putText(orig, text, (startX, y),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
-        cv2.circle(orig, (midframe_width, midframe_height), 15, (0, 0, 255), -1)
-        condition_yaw(15, relative=True)
-        cv2.circle(orig, (midframe_width, midframe_height), 15, (0, 225, 0), -1)
 
         if label == "person":
             box_centerX = ((endX - startX) // 2) + startX
@@ -249,16 +245,30 @@ while vehicle.mode.name == 'GUIDED':
 
     # show the output frame and wait for a key press
     orig = cv2.resize(orig, (640, 480))
-    out.write(orig)
     #cv2.imshow("Frame", orig)
-    key = cv2.waitKey(1) & 0xFF
 
-    # if the `q` key was pressed, break from the loop
-    #if key == ord("q"):
-    #    break
+    print(time.clock())
 
-    # update the FPS counter
-    fps.update()
+    if flying == 0 and time.clock() - clock_check >= 10:
+        flying = 1
+
+        # Connect to the Vehicle.
+        print("Connecting to vehicle on: serial0")
+        vehicle = connect('/dev/serial0', wait_ready=True, baud=921600)
+
+        # Arm and take of to altitude of 6 meters
+        arm_and_takeoff(6)
+
+        print("connected")
+
+    if flying == 1 and vehicle.mode.name == "GUIDED":
+        # update the FPS counter
+        fps.update()
+
+        out.write(orig)
+
+    if flying == 1 and vehicle.mode.name != 'GUIDED':
+        break
 
 # stop the timer and display FPS information
 fps.stop()
@@ -274,3 +284,5 @@ print("Close vehicle object")
 vehicle.close()
 
 call("sudo shutdown -h now", shell=True)
+
+
