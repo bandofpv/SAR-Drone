@@ -194,10 +194,6 @@ while True:
                                       keep_aspect_ratio=True, relative_coord=False)
     end = time.time()
 
-    cv2.circle(orig, (midframe_width, midframe_height), 15, (0, 0, 255), -1)
-    condition_yaw(15, relative=True)
-    cv2.circle(orig, (midframe_width, midframe_height), 15, (0, 225, 0), -1)
-
     # loop over the results
     for r in results:
         # extract the bounding box and box and predicted class label
@@ -262,6 +258,10 @@ while True:
         print("connected")
 
     if flying == 1 and vehicle.mode.name == "GUIDED":
+        cv2.circle(orig, (midframe_width, midframe_height), 15, (0, 0, 255), -1)
+        condition_yaw(15, relative=True)
+        cv2.circle(orig, (midframe_width, midframe_height), 15, (0, 225, 0), -1)
+
         # update the FPS counter
         fps.update()
 
