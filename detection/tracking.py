@@ -194,6 +194,8 @@ fps = FPS().start()
 
 clock_check = time.clock()
 
+angle = 0
+
 # loop over the frames from the video stream
 while True:
     # grab the frame from the threaded video stream and resize it
@@ -286,10 +288,10 @@ while True:
         print("connected")
 
     if flying == 1 and vehicle.mode.name == "GUIDED":
-        if angle >= 15:
+        if angle > 15:
             cw_yaw(1, relative=True)
 
-        if angle <= -15:
+        if angle < -15:
             ccw_yaw(1, relative=True)
 
         # update the FPS counter
