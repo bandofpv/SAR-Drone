@@ -289,10 +289,10 @@ while True:
 
     if flying == 1 and vehicle.mode.name == "GUIDED":
         if angle > 15:
-            cw_yaw(1, relative=True)
+            ccw_yaw(1, relative=True)
 
         if angle < -15:
-            ccw_yaw(1, relative=True)
+            cw_yaw(1, relative=True)
 
         # update the FPS counter
         fps.update()
