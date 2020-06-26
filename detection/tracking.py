@@ -80,7 +80,7 @@ def cw_yaw(heading, relative=False):
         0,  # confirmation
         heading,  # param 1, yaw in degrees
         0,  # param 2, yaw speed deg/s
-        1,  # param 3, direction -1 ccw, 1 cw
+        -1,  # param 3, direction 1 ccw, -1 cw
         is_relative,  # param 4, relative offset 1, absolute angle 0
         0, 0, 0)  # param 5 ~ 7 not used
     # send command to vehicle
@@ -108,7 +108,7 @@ def ccw_yaw(heading, relative=False):
         0,  # confirmation
         heading,  # param 1, yaw in degrees
         0,  # param 2, yaw speed deg/s
-        -1,  # param 3, direction -1 ccw, 1 cw
+        1,  # param 3, direction 1 ccw, -1 cw
         is_relative,  # param 4, relative offset 1, absolute angle 0
         0, 0, 0)  # param 5 ~ 7 not used
     # send command to vehicle
@@ -152,7 +152,7 @@ def send_ned_velocity(velocity_x, velocity_y, velocity_z, duration):
     # send command to vehicle on 1 Hz cycle
     for x in range(0, duration):
         vehicle.send_mavlink(msg)
-        time.sleep(1)
+        time.sleep(0.5)
 
 flying = 0
 
@@ -288,11 +288,23 @@ while True:
         print("connected")
 
     if flying == 1 and vehicle.mode.name == "GUIDED":
-        if angle > 15:
-            ccw_yaw(1, relative=True)
+        if 10 < angle < 20:
+            cw_yaw(2, relative=True)
 
-        if angle < -15:
-            cw_yaw(1, relative=True)
+        if angle > 20:
+            cw_yaw(4, relative=True)
+
+        if -10 > angle > -20:
+            ccw_yaw(2, relative=True)
+
+        if angle < -20:
+            ccw_yaw(4, relative=True)
+
+        # if calcDistance > 40:
+        #     send_ned_velocity(1, 0, 0, 1)
+        #
+        # if calcDistance < -35:
+        #     send_ned_velocity(-1, 0, 0, 1)
 
         # update the FPS counter
         fps.update()
