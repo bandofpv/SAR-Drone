@@ -301,10 +301,13 @@ while True:
             ccw_yaw(4, relative=True)
 
         if calcDistance > 40:
-            send_ned_velocity(0.05, 0, 0, 0)
+            send_ned_velocity(0.5, 0, 0, 0)
 
         if calcDistance < -35:
-            send_ned_velocity(-0.05, 0, 0, 0)
+            send_ned_velocity(-0.5, 0, 0, 0)
+
+        if -35 < calcDistance < 40:
+            send_ned_velocity(0, 0, 0, 0)
 
         # update the FPS counter
         fps.update()
