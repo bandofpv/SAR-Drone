@@ -288,29 +288,29 @@ while True:
         print("connected")
 
     if flying == 1 and vehicle.mode.name == "GUIDED":
-        if 10 < angle < 20:
-            cw_yaw(2, relative=True)
-
-        if angle > 20:
-            cw_yaw(4, relative=True)
-
-        if -10 > angle > -20:
-            ccw_yaw(2, relative=True)
-
-        if angle < -20:
-            ccw_yaw(4, relative=True)
+        # if 10 < angle < 20:
+        #     cw_yaw(2, relative=True)
+        #
+        # if angle > 20:
+        #     cw_yaw(4, relative=True)
+        #
+        # if -10 > angle > -20:
+        #     ccw_yaw(2, relative=True)
+        #
+        # if angle < -20:
+        #     ccw_yaw(4, relative=True)
 
         if calcDistance > 40:
             send_ned_velocity(1, 0, 0, 0)
-            time.sleep(0.5)
+            time.sleep(1)
 
         if calcDistance < -35:
             send_ned_velocity(-1, 0, 0, 0)
-            time.sleep(0.5)
+            time.sleep(1)
 
         if -35 < calcDistance < 40:
             send_ned_velocity(0, 0, 0, 0)
-            time.sleep(0.5)
+            time.sleep(1)
 
         # update the FPS counter
         fps.update()
