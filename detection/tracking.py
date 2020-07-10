@@ -123,7 +123,7 @@ The methods include:
 * send_ned_velocity - Sets velocity components using SET_POSITION_TARGET_LOCAL_NED command
 """
 
-def send_ned_velocity(velocity_x, velocity_y, velocity_z, duration):
+def send_ned_velocity(velocity_x, velocity_y, velocity_z):
     """
     Move vehicle in direction based on specified velocity vectors and
     for the specified duration.
@@ -150,11 +150,6 @@ def send_ned_velocity(velocity_x, velocity_y, velocity_z, duration):
         0, 0)  # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
 
     vehicle.send_mavlink(msg)
-
-    # send command to vehicle on 1 Hz cycle
-    # for x in range(0, duration):
-    #     vehicle.send_mavlink(msg)
-    #     time.sleep(1)
 
 flying = 0
 
@@ -302,18 +297,16 @@ while True:
         # if angle < -20:
         #     ccw_yaw(4, relative=True)
 
-        calcDistance = 50
-
         if calcDistance > 40:
-            send_ned_velocity(1, 0, 0, 0)
+            send_ned_velocity(1, 0, 0)
             time.sleep(1)
 
         elif calcDistance < -35:
-            send_ned_velocity(-1, 0, 0, 0)
+            send_ned_velocity(-1, 0, 0)
             time.sleep(1)
 
         elif -35 < calcDistance < 40:
-            send_ned_velocity(0, 0, 0, 0)
+            send_ned_velocity(0, 0, 0)
             time.sleep(1)
 
         # update the FPS counter
