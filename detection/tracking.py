@@ -192,6 +192,7 @@ fps = FPS().start()
 clock_check = time.clock()
 
 angle = 0
+calcDistance = 0
 
 # loop over the frames from the video stream
 while True:
