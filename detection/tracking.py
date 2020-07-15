@@ -289,13 +289,13 @@ while True:
         if 10 < angle < 20:
             cw_yaw(2, relative=True)
 
-        if angle > 20:
+        elif angle > 20:
             cw_yaw(4, relative=True)
 
-        if -10 > angle > -20:
+        elif -10 > angle > -20:
             ccw_yaw(2, relative=True)
 
-        if angle < -20:
+        elif angle < -20:
             ccw_yaw(4, relative=True)
 
         if calcDistance > 40:
