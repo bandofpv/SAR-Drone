@@ -193,6 +193,8 @@ clock_check = time.clock()
 
 angle = 0
 calcDistance = 0
+searching = 1
+count = 0
 
 # loop over the frames from the video stream
 while True:
@@ -238,6 +240,8 @@ while True:
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         if label == "person":
+            searching = 0
+            
             box_centerX = ((endX - startX) // 2) + startX
             box_centerY = ((endY - startY) // 2) + startY
             cv2.circle(orig, (box_centerX, box_centerY), 5, (0, 0, 255), -1)
@@ -285,7 +289,13 @@ while True:
 
         print("connected")
 
-    if flying == 1 and vehicle.mode.name == "GUIDED":
+    if flying == 1 and searching = 1 and vehicle.mode.name == "GUIDED":
+        if count % 10 != 0:
+            send_ned_velocity(1, 0, 0)
+        elif 
+        #searching
+        
+    if flying == 1 and searching = 0 and vehicle.mode.name == "GUIDED":
         if 10 < angle < 20:
             cw_yaw(2, relative=True)
 
