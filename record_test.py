@@ -1,5 +1,5 @@
 # USAGE
-# python detect_video.py --model mobilenet_ssd_v2/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite --labels mobilenet_ssd_v2/coco_labels.txt
+# python record_test.py --model mobilenet_ssd_v2/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite --labels mobilenet_ssd_v2/coco_labels.txt
 
 # import the necessary packages
 from __future__ import print_function
@@ -16,47 +16,44 @@ import cv2
 import math
 import numpy as np
 
+"""
+The following functions are used to control the movement of the drone
+"""
+
 def arm_and_takeoff(aTargetAltitude):
     """
     Arms vehicle and fly to aTargetAltitude.
     """
 
     print("Basic pre-arm checks")
-    # Don't let the user try to arm until autopilot is ready
+    # don't let the user try to arm until autopilot is ready
     while not vehicle.is_armable:
         print(" Waiting for vehicle to initialise...")
         time.sleep(1)
 
-    # Copter should arm in GUIDED mode
-    while not vehicle.mode.name == 'GUIDED':  # Wait until mode has changed
+    # copter should arm in GUIDED mode
+    while not vehicle.mode.name == 'GUIDED':  # wait until mode has changed
         print(" Waiting for mode change ...")
         time.sleep(1)
 
+    # arm the copter
     print("Arming motors")
     vehicle.armed = True
-    while not vehicle.armed:
+    while not vehicle.armed:  # wait until copter is armed
         print(" Waiting for arming...")
         time.sleep(1)
 
     print("Taking off!")
-    vehicle.simple_takeoff(aTargetAltitude)  # Take off to target altitude
+    vehicle.simple_takeoff(aTargetAltitude)  # take off to target altitude
 
-    # Wait until the vehicle reaches a safe height before processing the goto (otherwise the command
-    #  after Vehicle.simple_takeoff will execute immediately).
+    # wait until the vehicle reaches a safe height before processing the goto (otherwise the command after
+    # Vehicle.simple_takeoff will execute immediately).
     while True:
         print(" Altitude: ", vehicle.location.global_relative_frame.alt)
-        if vehicle.location.global_relative_frame.alt >= aTargetAltitude * 0.95:  # Trigger just below target alt.
+        if vehicle.location.global_relative_frame.alt >= aTargetAltitude * 0.95:  # trigger just below target alt.
             print("Reached target altitude")
             break
         time.sleep(1)
-
-"""
-Convenience functions for sending immediate/guided mode commands to control the Copter.
-The set of commands demonstrated here include:
-* MAV_CMD_CONDITION_YAW - set direction of the front of the Copter (latitude, longitude)
-The full set of available commands are listed here:
-http://dev.ardupilot.com/wiki/copter-commands-in-guided-mode/
-"""
 
 def condition_yaw(heading, relative=False):
     """
@@ -85,15 +82,6 @@ def condition_yaw(heading, relative=False):
         0, 0, 0)  # param 5 ~ 7 not used
     # send command to vehicle
     vehicle.send_mavlink(msg)
-
-"""
-Functions that move the vehicle by specifying the velocity components in each direction.
-The two functions use different MAVLink commands. The main difference is
-that depending on the frame used, the NED velocity can be relative to the vehicle
-orientation.
-The methods include:
-* send_ned_velocity - Sets velocity components using SET_POSITION_TARGET_LOCAL_NED command
-"""
 
 def send_ned_velocity(velocity_x, velocity_y, velocity_z, duration):
     """
@@ -126,6 +114,7 @@ def send_ned_velocity(velocity_x, velocity_y, velocity_z, duration):
         vehicle.send_mavlink(msg)
         time.sleep(1)
 
+# create variable to store whether or not the copter is flying or not
 flying = 0
 
 # construct the argument parser and parse the arguments
@@ -162,8 +151,8 @@ time.sleep(2.0)
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter('/home/pi/SAR_Drone/detection/output.mp4', fourcc, 20.0, (640, 480))
 
+# start fps counter and clock
 fps = FPS().start()
-
 clock_check = time.clock()
 
 # loop over the frames from the video stream
@@ -209,12 +198,14 @@ while True:
         cv2.putText(orig, text, (startX, y),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
+        # if a person is detected
         if label == "person":
+            # calculate and draw a dot on the center of the bounding box (detecting the person)
             box_centerX = ((endX - startX) // 2) + startX
             box_centerY = ((endY - startY) // 2) + startY
             cv2.circle(orig, (box_centerX, box_centerY), 5, (0, 0, 255), -1)
 
-            # calculate angle of object to drone
+            # calculate angle from person to drone (-90 degrees to +90 degrees)
             if box_centerX - Xpov != 0:
                 angle = int(math.atan((box_centerY - Ypov) / (box_centerX - Xpov)) * 180 / math.pi)
 
@@ -224,14 +215,14 @@ while True:
             else:
                 angle -= 90
 
-            # create circle of where the drone is
+            # create dot of where the drone is relative to the video frame
             cv2.circle(orig, (Xpov, Ypov), 5, (0, 0, 255), -1)
 
-            # create line connecting the drone and person location with the angle calculated too
+            # create line connecting the drone and person location with the calculated angle
             cv2.line(orig, (box_centerX, box_centerY), (Xpov, Ypov), (0, 0, 255), 1)
             cv2.putText(orig, str(angle), (Xpov, Ypov - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
-            # create circle of center frame
+            # create dot on center of video frame
             cv2.circle(orig, (midframe_width, midframe_height), 5, (0, 0, 255), -1)
 
             # calculate the distance from person to center of frame
@@ -239,30 +230,34 @@ while True:
             cv2.putText(orig, str(calcDistance), (midframe_width, midframe_height + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                         (0, 0, 255), 2)
 
-    # show the output frame and wait for a key press
+    # resize video frame
     orig = cv2.resize(orig, (640, 480))
-    #cv2.imshow("Frame", orig)
 
     print(time.clock())
 
+    # if the copter is on the ground for at least 10 seconds (time it takes to initialize the camera gimbal)
     if flying == 0 and time.clock() - clock_check >= 10:
+        # change variable to flying
         flying = 1
 
-        # Connect to the Vehicle.
+        # connect to the Vehicle.
         print("Connecting to vehicle on: serial0")
         vehicle = connect('/dev/serial0', wait_ready=True, baud=921600)
 
-        # Arm and take of to altitude of 6 meters
+        # arm and take of to altitude of 6 meters
         arm_and_takeoff(6)
 
         print("connected")
 
+    # if the copter is flying and in GUIDED mode, start the recording
     if flying == 1 and vehicle.mode.name == "GUIDED":
         # update the FPS counter
         fps.update()
 
+        # start recording
         out.write(orig)
 
+    # if copter is flying and user takes manual control, cancel RPI control over the drone and cancel recording
     if flying == 1 and vehicle.mode.name != 'GUIDED':
         break
 
@@ -276,7 +271,9 @@ cv2.destroyAllWindows()
 out.release()
 vs.stop()
 
+# close vehicle object before exiting script
 print("Close vehicle object")
 vehicle.close()
 
+# shutdown RPI to save battery power
 call("sudo shutdown -h now", shell=True)

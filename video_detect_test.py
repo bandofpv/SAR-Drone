@@ -1,5 +1,5 @@
 # USAGE
-# python detect_video.py --model mobilenet_ssd_v2/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite --labels mobilenet_ssd_v2/coco_labels.txt
+# python video_detect_test.py --model mobilenet_ssd_v2/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite --labels mobilenet_ssd_v2/coco_labels.txt
 
 # import the necessary packages
 from edgetpu.detection.engine import DetectionEngine
@@ -90,29 +90,31 @@ while True:
         cv2.putText(orig, text, (startX, y),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
+        # if a person is detected
         if label == "person":
+            # calculate and draw a dot on the center of the bounding box (detecting the person)
             box_centerX = ((endX - startX) // 2) + startX
             box_centerY = ((endY - startY) // 2) + startY
             cv2.circle(orig, (box_centerX, box_centerY), 5, (0, 0, 255), -1)
 
-            # calculate angle of object to drone
+            # calculate angle from person to drone (-90 degrees to +90 degrees)
             if box_centerX - Xpov != 0:
                 angle = int(math.atan((box_centerY - Ypov) / (box_centerX - Xpov)) * 180 / math.pi)
 
             if angle < 0:
                 angle += 90
-            
+
             else:
                 angle -= 90
 
-            # create circle of where the drone is
+            # create dot of where the drone is relative to the video frame
             cv2.circle(orig, (Xpov, Ypov), 5, (0, 0, 255), -1)
 
-            # create line connecting the drone and person location with the angle calculated too
+            # create line connecting the drone and person location with the calculated angle
             cv2.line(orig, (box_centerX, box_centerY), (Xpov, Ypov), (0, 0, 255), 1)
             cv2.putText(orig, str(angle), (Xpov, Ypov - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
-            # create circle of center frame
+            # create dot on center of video frame
             cv2.circle(orig, (midframe_width, midframe_height), 5, (0, 0, 255), -1)
 
             # calculate the distance from person to center of frame

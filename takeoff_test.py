@@ -1,13 +1,5 @@
-#print ("Start simulator (SITL)")
-
-#import dronekit_sitl
-import time
-
-# Import DroneKit-Python
-from dronekit import connect, VehicleMode
-
-#sitl = dronekit_sitl.start_default()
-#connection_string = sitl.connection_string()
+# USAGE
+# python takeoff_test.py
 
 # Connect to the Vehicle.
 print("Connecting to vehicle on: serial0")
@@ -20,48 +12,47 @@ def arm_and_takeoff(aTargetAltitude):
 
     print ("Basic pre-arm checks")
 
-    # Check that vehicle is armable
+    # don't let the user try to arm until autopilot is ready
     while not vehicle.is_armable:
         print(" Waiting for vehicle to initialise...")
         time.sleep(1)
 
-    print("\nSet Vehicle.mode = GUIDED (currently: %s)" % vehicle.mode.name)
-    #vehicle.mode = VehicleMode("GUIDED")
-    while not vehicle.mode.name == 'GUIDED':  # Wait until mode has changed
+    while not vehicle.mode.name == 'GUIDED':  # wait until mode has changed
         print(" Waiting for mode change ...")
         time.sleep(1)
 
     print ("\nSet Vehicle.armed=True (currently: %s)" % vehicle.armed)
     vehicle.armed = True
-    while not vehicle.armed:
+    while not vehicle.armed: # wait until copter is armed
         print (" Waiting for arming...")
         time.sleep(1)
     print (" Vehicle is armed: %s" % vehicle.armed)
 
     print ("Taking off!")
-    vehicle.simple_takeoff(aTargetAltitude) # Take off to target altitude
+    vehicle.simple_takeoff(aTargetAltitude) # take off to target altitude
 
-    # Wait until the vehicle reaches a safe height before processing the goto (otherwise the command
-    #  after Vehicle.simple_takeoff will execute immediately).
+    # wait until the vehicle reaches a safe height before processing the goto (otherwise the command after
+    # Vehicle.simple_takeoff will execute immediately).
     while True:
         print ("Global Location (relative altitude): %s" % vehicle.location.global_relative_frame)
         print (" Altitude: ", vehicle.location.global_relative_frame.alt)
-        #Break and return from function just below target altitude.
+        # break and return from function just below target altitude.
         if vehicle.location.global_relative_frame.alt>=aTargetAltitude*0.95:
             print ("Reached target altitude")
             break
         time.sleep(1)
 
-# Take off to 10m
+# take off to 10m
 arm_and_takeoff(10)
 
 print("Take off complete")
 
-# Hover for 10 seconds
+# hover for 10 seconds
 time.sleep(10)
 
+# land
 print("Now let's land")
 vehicle.mode = VehicleMode("LAND")
 
-# Close vehicle object
+# close vehicle object
 vehicle.close()
