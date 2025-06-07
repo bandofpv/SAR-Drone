@@ -1,2 +1,2 @@
-# SAR_Drone
+# Search-and-Rescue-Drone
 An autonomous drone using Google's Coral Edge TPU USB Accelerator to identify and track missing persons to aid search & rescue operations. Tutorial: https://www.hackster.io/bandofpv/search-and-rescue-drone-with-google-coral-a485c7
